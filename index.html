@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		body {
+			background: grey;
+			margin: 0px;
+			color: white;
+			font-family: monospace;
+		}
+		canvas {
+			background: white;
+		}
+	</style>
+</head>
+<body>
+	<canvas width="800" heigh="600"></canvas>
+	click + drag to draw | space to erase
+</body>
+<script>
+const canvas = document.querySelector('canvas');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight-30;
+const ctx = canvas.getContext('2d');
+
+let timeoutId = -1;
+let width = canvas.width;
+let height = canvas.height;
+
+let resizeDebounce = null;
+window.addEventListener('resize', (event) => {
+	clearTimeout(resizeDebounce);
+	resizeDebounce = setTimeout(() => {
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight-30;
+		width = canvas.width;
+		height = canvas.height;
+	}, 300);
+});
+
+let mousedown;
+document.addEventListener('mousedown', (event) => {
+	mousedown = true;
+})
+
+let path = [];
+let lastPoint;
+document.addEventListener('mousemove', (event) => {
+	if (mousedown) {
+		path.push(event);
+		cursor = event;
+	}
+})
+
+document.addEventListener('mouseup', (event) => {
+	mousedown = false;
+	path.push(false);
+})
+
+document.addEventListener('keydown', (event) => {
+	switch(event.key) {
+	case ' ':
+		ctx.clearRect(0,0, width, height);
+		break;
+	default:
+		break;
+	}
+})
+
+function update(now, delta) {
+	const dt = delta/100;
+}
+
+function clearRectAlpha(ctx, alpha) {
+	ctx.fillStyle = `rgba(0,0,0,${alpha.toFixed(2)})`;
+	ctx.fillRect(0, 0, width, height);
+	ctx.fillStyle = `rgb(255,255,255)`;
+}
+function draw(now, delta) {
+	// ctx.clearRect(0,0, width, height);
+	// clearRectAlpha(c/tx, 0.01);
+
+	if (mousedown) {
+		ctx.beginPath();
+		ctx.fill();
+		let c = 150
+		let w = Math.floor(width / c) + 1;
+		let h = Math.floor(height / c) + 1;
+		let point;
+		if (!lastPoint) {
+			lastPoint = path.shift();
+		}
+		let zxcv = false;
+		while((point = path.shift()) !== undefined) {
+			if (!point) {
+				zxcv = true;
+				point = lastPoint
+			}
+			let x = point.layerX % c;
+			let y = point.layerY % c;
+			let lastX = lastPoint.layerX % c;
+			let lastY = lastPoint.layerY % c;
+			let dirX = Math.sign(x-lastX);
+			let dirY = Math.sign(y-lastY);
+			let offsetX = Math.abs(point.layerX - lastPoint.layerX) < Math.abs(x - lastX) ? c * -dirX : 0;
+			let offsetY = Math.abs(point.layerY - lastPoint.layerY) < Math.abs(y - lastY) ? c * -dirY : 0;
+			console.log({x:x, y:y}, {lastX:lastX, lastY:lastY}, {offsetX:offsetX, offsetY:offsetY}, point, lastPoint)
+			for (var i = 0; i < w; i++) {
+				for (var j = 0; j < h; j++) {
+					// const sheep = sheepOrbit.sheep[i];
+					// ctx.fillStyle = i ? `rgb(100, 100, 100)` : `rgb(255, 255, 255)`;
+					ctx.beginPath();
+					ctx.moveTo(lastX + i*c, lastY + j*c);
+					ctx.lineTo(x + i*c + offsetX, y + j*c + offsetY);
+					ctx.stroke();
+
+
+					// ctx.beginPath();
+					// ctx.ellipse(
+					// 	x + i*c, // center x
+					// 	y + j*c, // center y
+					// 	2,		 // width on x axis
+					// 	2,		 // width on y axix
+					// 	0, // rotation
+					//     -160 * Math.PI/180,	     // start angle
+					// 	160 * Math.PI/180); // end angle
+					// ctx.fill();
+				}
+			}
+			lastPoint = point;
+		}
+		if (zxcv) {
+			lastPoint = undefined;
+		}
+	}
+}
+
+
+
+let last = null;
+function main(now) {
+	if (!last) last = now;
+	const current = now;
+	const delta = current - last;
+	last = now;
+	if (delta < 300) {
+		update(now, delta);
+		draw(now, delta);
+	} 
+	timeoutId = requestAnimationFrame(main);
+}
+
+function init() {
+	cancelAnimationFrame(timeoutId);
+	// hexascope = new Hexascope();
+	last = null;
+	timeoutId = requestAnimationFrame(main);
+}
+init();
+</script>
+</html>
