@@ -79,9 +79,6 @@ function clearRectAlpha(ctx, alpha) {
 	ctx.fillStyle = `rgb(255,255,255)`;
 }
 function draw(now, delta) {
-	// ctx.clearRect(0,0, width, height);
-	// clearRectAlpha(c/tx, 0.01);
-
 	if (mousedown) {
 		ctx.beginPath();
 		ctx.fill();
@@ -109,24 +106,10 @@ function draw(now, delta) {
 			console.log({x:x, y:y}, {lastX:lastX, lastY:lastY}, {offsetX:offsetX, offsetY:offsetY}, point, lastPoint)
 			for (var i = 0; i < w; i++) {
 				for (var j = 0; j < h; j++) {
-					// const sheep = sheepOrbit.sheep[i];
-					// ctx.fillStyle = i ? `rgb(100, 100, 100)` : `rgb(255, 255, 255)`;
 					ctx.beginPath();
 					ctx.moveTo(lastX + i*c, lastY + j*c);
 					ctx.lineTo(x + i*c + offsetX, y + j*c + offsetY);
 					ctx.stroke();
-
-
-					// ctx.beginPath();
-					// ctx.ellipse(
-					// 	x + i*c, // center x
-					// 	y + j*c, // center y
-					// 	2,		 // width on x axis
-					// 	2,		 // width on y axix
-					// 	0, // rotation
-					//     -160 * Math.PI/180,	     // start angle
-					// 	160 * Math.PI/180); // end angle
-					// ctx.fill();
 				}
 			}
 			lastPoint = point;
