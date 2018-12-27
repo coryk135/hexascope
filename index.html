@@ -33,8 +33,12 @@ let resizeDebounce = null;
 window.addEventListener('resize', (event) => {
 	clearTimeout(resizeDebounce);
 	resizeDebounce = setTimeout(() => {
+		const imgData = ctx.getImageData(0,0, canvas.width, canvas.height);
+ 
 		canvas.width = window.innerWidth;
 		canvas.height = window.innerHeight-30;
+		// Copy back to resized canvas
+		ctx.putImageData(imgData, 0, 0);
 		width = canvas.width;
 		height = canvas.height;
 	}, 300);
@@ -62,8 +66,9 @@ document.addEventListener('touchmove', (event) => {
 	if (mousedown) {
 		let touch = event.touches[0];
 		path.push({layerX: touch.pageX, layerY: touch.pageY});
+		event.preventDefault();
 	}
-});
+}, {passive: false});
 
 document.addEventListener('mouseup', (event) => {
 	mousedown = false;
